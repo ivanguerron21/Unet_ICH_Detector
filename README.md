@@ -7,3 +7,10 @@ This code can work with different types of data sets. If these is the case, skip
 Download the original data set from Physionet. In this case, we used an upgraded version which was found on: https://physionet.org/content/ct-ich/1.3.1/. You will not need split_raw_data.py from that file since an upgraded version of that script is included in this project
 ### Step 2:
 Run file create_data_set.py.
+### Step 3:
+Run main_kfold.py if you want to do a stratified k-fold cross validation. Else run main.py.
+You can change the model you want to train between UNet and UNet1 (our modified model). They are both defined in models.py.
+### Step 4:
+If you used the k-fold technique, run trials.py to obtain a table with the mean scores and the graphics.
+### Step 5:
+Run tests.py to obtain results on the test set and get the predicted masks.

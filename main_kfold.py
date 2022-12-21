@@ -1,13 +1,9 @@
 from pathlib import Path
-
 from sklearn.model_selection import StratifiedKFold
 import os
-import pandas as pd
-from model_utils import dice_coef, iou, dice_coef_loss
 from models import UNet, UNet1
 from keras.optimizers import *
-import matplotlib.pyplot as plt
-from tools import train_generator, test_generator, save_results, is_file, prepare_dataset, show_image, df_train_generator
+from tools import train_generator, is_file, df_train_generator
 from keras.callbacks import ModelCheckpoint
 import pandas as pd
 

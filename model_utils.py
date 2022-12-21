@@ -5,20 +5,18 @@ from keras.layers.core import Lambda
 import keras.backend as K
 
 
-# function that defines input layers for given shape
+# defines input
 def input_tensor(input_size):
     x = Input(input_size)
     return x
 
 
-# function that defines one convolutional layer with certain number of filters
 def single_conv(input_tensor, n_filters, kernel_size, data_format=None):
     x = Conv2D(filters = n_filters, kernel_size = (kernel_size, kernel_size), data_format=data_format,
                activation='sigmoid')(input_tensor)
     return x
 
 
-# function that defines two sequential 2D convolutional layers with certain number of filters
 def double_conv(input_tensor, n_filters, kernel_size=3, batch_norm=False):
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), padding='same', kernel_initializer='he_normal')(input_tensor)
     if batch_norm:
@@ -30,7 +28,6 @@ def double_conv(input_tensor, n_filters, kernel_size=3, batch_norm=False):
     return x
 
 
-# function that defines two sequential 2D convolutional layers with certain number of filters
 def triple_conv(input_tensor, n_filters, kernel_size=3, batch_norm=True):
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), padding='same',
                kernel_initializer='he_normal')(input_tensor)
@@ -68,7 +65,6 @@ def merge(input1, input2):
     return x
 
 
-# function to create ModelCheckpoint
 def callback(name):
     return ModelCheckpoint(name, monitor='loss', verbose=1, save_best_only=True)
 
@@ -92,7 +88,7 @@ def up_and_concate(down_layer, layer, data_format='channels_first'):
     return concate
 
 
-# Recurrent Residual Convolutional Neural Network based on U-Net (R2U-Net)
+# Recurrent Residual Convolutional Neural Network for future work
 def rec_res_block(input_layer, out_n_filters, batch_normalization=False, kernel_size=[3, 3], stride=[1, 1],
                   padding='same', data_format='channels_first'):
     if data_format == 'channels_first':

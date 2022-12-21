@@ -1,57 +1,11 @@
 from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 import os
-import random
 import skimage.io as io
 import skimage.transform as trans
 import numpy as np
 from PIL import Image
 from pathlib import Path
-
-
-def prepare_dataset(
-    path_to_data,
-    image_folder,
-    mask_folder,
-    n_samples,
-    as_gray=True
-):
-    """ Prepare Dataset
-    Function that takes path to DataSet folder
-    which has image and mask folder
-    Each image and mask are transformed to square formats:
-    reads both image and mask, creates new image and mask;
-    generates random spacing coefficient,
-    adds original image and paddings to them to make them square,
-    then saves new masks and images and delets originals
-    """
-    path_to_image = os.path.join(path_to_data, image_folder)
-    path_to_mask = os.path.join(path_to_data, mask_folder)
-
-    for i in range(1, n_samples + 1):
-        try:
-            img_name = os.path.join(path_to_image,"%d.png" % i)
-            mask_name = os.path.join(path_to_mask, "%d.png" % i)
-
-            coefficient = random.uniform(0, 2)
-
-            img = io.imread(fname = img_name, as_gray = as_gray)
-            os.remove(img_name)
-            new_img = square_image(img, random = coefficient)
-            new_img = (new_img * 255).astype('uint8')
-            io.imsave(fname = img_name, arr = new_img)
-
-            mask = io.imread(fname = mask_name,as_gray = as_gray)
-            os.remove(mask_name)
-            new_mask = square_image(mask, random = coefficient)
-            new_mask = (new_mask * 255).astype('uint8')
-            io.imsave(fname = mask_name, arr = new_mask)
-
-            print("Successfully added paddings to image and mask #%d" % i)
-        except:
-            print("Adding paddings failed at #%d" % i)
-
-    print("All images and masks were resized to SQUARE format")
 
 
 def df_train_generator(
@@ -64,12 +18,6 @@ def df_train_generator(
     image_color_mode='grayscale',
     mask_color_mode='grayscale'
 ):
-    """ Image Data Generator
-    Function that generates batches of data (img, mask) for training
-    from specified folder. Returns images with specified pixel size
-    Does preprocessing (normalization to 0-1)
-    """
-    # no augmentation, only rescaling
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
     image_generator = image_datagen.flow_from_dataframe(
@@ -113,12 +61,6 @@ def train_generator(
     image_color_mode='grayscale',
     mask_color_mode='grayscale'
 ):
-    """ Image Data Generator
-    Function that generates batches of data (img, mask) for training
-    from specified folder. Returns images with specified pixel size
-    Does preprocessing (normalization to 0-1)
-    """
-    # no augmentation, only rescaling
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
     image_generator = image_datagen.flow_from_directory(
@@ -158,12 +100,6 @@ def test_generator(
     target_size,
     as_gray=True
 ):
-    """ Image Data Generator
-    Function that generates batches od data for testing from specified folder
-    Reads images as grey, makes them square, scales them
-    Returns images with specified pixel size
-    Does preprocessing (normalization to 0-1)
-    """
     l = os.listdir(test_path)
     for i in l:
         img = io.imread(os.path.join(test_path, i), as_gray=as_gray)
@@ -234,10 +170,6 @@ def save_results(
 def is_file(
     file_name
 ) -> bool:
-    """ Is File
-    Check if file exists
-    Later used to check if user has pretrained models
-    """
     return os.path.isfile(file_name)
 
 

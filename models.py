@@ -1,19 +1,10 @@
 from keras.models import Model
 from keras.optimizers import *
 from model_utils import input_tensor, single_conv, double_conv, deconv, \
-    pooling, merge, callback, dice_coef, iou, dice_coef_loss, rec_res_block, \
-    up_and_concate
-from keras.layers import Input, MaxPooling2D, Conv2D
+    pooling, merge, callback, dice_coef, iou, dice_coef_loss
 
 
 class UNet(Model):
-    """ U-Net atchitecture
-    Creating a U-Net class that inherits from keras.models.Model
-    In initializer, CNN layers are defined using functions from model.utils
-    Then parent-initializer is called wuth calculated input and output layers
-    Build function is also defined for model compilation and summary
-    checkpoint returns a ModelCheckpoint for best model fitting
-    """
 
     def __init__(
             self,
@@ -21,10 +12,10 @@ class UNet(Model):
             n_filters,
             pretrained_weights=None
     ):
-        # define input layer
+        # input
         input = input_tensor(input_size)
 
-        # begin with contraction part
+        # contracting path
         conv1 = double_conv(input, n_filters * 1)
         pool1 = pooling(conv1)
 
@@ -56,13 +47,11 @@ class UNet(Model):
         up9 = merge(conv1, up9)
         conv9 = double_conv(up9, n_filters * 1)
 
-        # define output layer
+        # output
         output = single_conv(conv9, 1, 1)
 
-        # initialize Keras Model with defined above input and output layers
         super(UNet, self).__init__(inputs=input, outputs=output)
 
-        # load preatrained weights
         if pretrained_weights:
             self.load_weights(pretrained_weights)
 
@@ -88,10 +77,10 @@ class UNet1(Model):
             n_filters,
             pretrained_weights=None
     ):
-        # define input layer
+        # input
         input = input_tensor(input_size)
 
-        # begin with contraction part
+        # contracting path
         conv1 = double_conv(input, n_filters * 1, batch_norm=True)
         pool1 = pooling(conv1, drop=True)
 
@@ -123,13 +112,10 @@ class UNet1(Model):
         up9 = merge(conv1, up9)
         conv9 = double_conv(up9, n_filters * 1, batch_norm=True)
 
-        # define output layer
         output = single_conv(conv9, 1, 1)
 
-        # initialize Keras Model with defined above input and output layers
         super(UNet1, self).__init__(inputs=input, outputs=output)
 
-        # load preatrained weights
         if pretrained_weights:
             self.load_weights(pretrained_weights)
 

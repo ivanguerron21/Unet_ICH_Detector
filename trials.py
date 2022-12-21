@@ -3,8 +3,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import csv
 from statistics import mean, stdev
-import numpy as np
-from sklearn.model_selection import RepeatedStratifiedKFold, StratifiedKFold, KFold
 
 
 def plot_models(history, path, best_model_epochs):

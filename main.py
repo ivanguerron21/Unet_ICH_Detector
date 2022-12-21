@@ -95,12 +95,11 @@ if __name__ == "__main__":
         pretrained_weights=pretrained_weights
     )
 
-    learning_rate = 1e-4  # lo demas no sirve
+    learning_rate = 1e-4
     EPOCHS = 1000
     unet.build(learning_rate=learning_rate, EPOCHS=EPOCHS)
 
     filepath = 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
-    # creating a callback, hence best weights configurations will be saved
     callbacks = [ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=200)]
 
     steps_per_epoch = train_num // BATCH_SIZE
@@ -115,7 +114,6 @@ if __name__ == "__main__":
         validation_steps=steps_val
     )
 
-    # # saving model weights
     unet.save_model(model_weights_name)
     histDF = pd.DataFrame.from_dict(history.history)
     histDF.to_csv('historyCSV')
@@ -160,10 +158,3 @@ if __name__ == "__main__":
     # Display the plot
     plt.legend(loc='best')
     plt.savefig("iou_fig.png")
-
-    # # generated testing set
-    # test_gen = test_generator(test_path, img_size)
-    #
-    # # display results
-    # results = unet.predict_generator(test_gen, 30, verbose=1)
-    # save_results(save_path, test_path, results)

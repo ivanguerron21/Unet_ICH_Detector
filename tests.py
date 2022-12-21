@@ -1,13 +1,7 @@
 import os
-import pandas as pd
-from model_utils import dice_coef, iou, dice_coef_loss
 from models import UNet, UNet1
 from keras.optimizers import *
-import matplotlib.pyplot as plt
-from tools import train_generator, test_generator, save_results, is_file, prepare_dataset, show_image, df_train_generator
-from keras.callbacks import ModelCheckpoint
-from keras.models import load_model
-
+from tools import train_generator, test_generator, save_results
 
 img_height = 256
 img_width = 256

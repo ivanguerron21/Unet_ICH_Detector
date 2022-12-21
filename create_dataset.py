@@ -1,4 +1,4 @@
-# from split_raw_data import do_split
+from split_raw_data import do_split
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from PIL import Image
@@ -149,7 +149,7 @@ def overlap():
 
 
 if __name__ == '__main__':
-    # do_split()
+    do_split()
     normal_train_test_split()
     overlap()
     data_set_k_fold()

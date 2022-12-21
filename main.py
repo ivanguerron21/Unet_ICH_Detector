@@ -33,7 +33,6 @@ if __name__ == "__main__":
         return image_fname
 
 
-    # create a new column with image file names
     train_data['image_fname'] = train_data.apply(assign_image_fname, axis=1)
     val_data['image_fname'] = val_data.apply(assign_image_fname, axis=1)
 

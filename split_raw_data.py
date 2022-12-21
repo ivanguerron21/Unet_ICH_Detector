@@ -1,6 +1,7 @@
 # This code loads the CT slices (grayscale images) of the brain-window for each subject in ct_scans folder then saves them to
 # one folder (data\image).
 # Their segmentation from the masks folder is saved to another folder (data\label).
+# it was modified from the original script found on physionet
 
 import os
 from pathlib import Path

@@ -1,24 +1,24 @@
 import os
 from models import UNet, UNet1
-from keras.optimizers import *
 from tools import train_generator, test_generator, save_results
 
 img_height = 256
 img_width = 256
 img_size = (img_height, img_width)
 BATCH_SIZE = 1
-test_path = "test"
-test_path_img = "test/img"
-test_num = len(os.listdir('test/img'))
+test_path = "test_all"
+test_path_img = "test_all/img"
+test_num = len(os.listdir('test_all/img'))
 
 if __name__ == "__main__":
     unet = UNet1(
         input_size=(img_width, img_height, 1),
         n_filters=32,
         pretrained_weights="checkpoints/unet_32/10weights.800-0.10.hdf5"
+        # use the name of your weights
     )
 
-    learning_rate = 1e-4  # lo demas no sirve
+    learning_rate = 1e-4
     EPOCHS = 1000
     unet.build(learning_rate=learning_rate, EPOCHS=EPOCHS)
 

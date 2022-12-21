@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 import csv
@@ -6,7 +7,6 @@ from statistics import mean, stdev
 
 
 def plot_models(history, path, best_model_epochs):
-    # history = history.iloc[:best_model_epochs]
 
     plt.plot(history["loss"], label='Training')
     plt.plot(history["val_loss"], label='Validation')
@@ -141,70 +141,21 @@ def compress(path, new_path, only_check_path):
     f1.close()
 
 
-def analyse(df, new_write):
-    columns = ["Checkpoint (epoch)", "Learning rate", "Batch size", " train dice mean",
-               "train dice std", "train iou mean", "train iou std", "train loss mean",
-               "train loss std", " val dice mean", "val dice std", "val iou mean",
-               "val iou std", "val loss mean", "val loss std"]
-    # open the file in the write mode
-    f = open(new_write, 'w')
-
-    # create the csv writer
-    writer = csv.writer(f)
-
-    # write a row to the csv file
-    writer.writerow(columns)
-
-    cont = 0
-    I = []
-    D = []
-    L = []
-    vI = []
-    vD = []
-    vL = []
-    for row in df.iterrows():
-        L.append(float(row[1][1]))
-        I.append(float(row[1][2]))
-        D.append(float(row[1][3]))
-        vL.append(float(row[1][4]))
-        vI.append(float(row[1][5]))
-        vD.append(float(row[1][6]))
-
-        cont += 1
-        if cont % 100 == 0:
-            avgL = mean(L)
-            avgI = mean(I)
-            avgD = mean(D)
-            avgvL = mean(vL)
-            avgvI = mean(vI)
-            avgvD = mean(vD)
-
-            sL = stdev(L)
-            sI = stdev(I)
-            sD = stdev(D)
-            svL = stdev(vL)
-            svI = stdev(vI)
-            svD = stdev(vD)
-
-            r = [str(cont), "1e-4", "32", str(avgD), str(sD), str(avgI), str(sI), str(avgL), str(sL),
-                 str(avgvD), str(svD), str(avgvI), str(svI), str(avgvL), str(svL)]
-
-            writer.writerow(r)
-
-    f.close()
-
-
 if __name__ == "__main__":
+
+    results_path = Path('results')
+    unet_32_path = results_path / 'unet_32_visual'
+    unet_normal_path = results_path / 'unet_normal_visual'
+    unet_32_path.mkdir()
+    unet_normal_path.mkdir()
 
     path = 'results/unet_normal/'
     visual_path = 'results/unet_normal_visual/'
     new_path_1 = 'results/unet_normal_visual/mean_history.csv'
-    new_write = 'results/unet_normal_visual/table.csv'
     only_check_path = 'results/unet_normal_visual/mean_history_checkpoints.csv'
 
     compress(path, new_path_1, only_check_path)
     plot_models(pd.read_csv(new_path_1), visual_path, best_model_epochs=600)
-    analyse(pd.read_csv(new_path_1), new_write)
 
     path = 'results/unet_32/'
     visual_path = 'results/unet_32_visual/'
@@ -214,7 +165,6 @@ if __name__ == "__main__":
 
     compress(path, new_path_2, only_check_path)
     plot_models(pd.read_csv(new_path_2), visual_path, best_model_epochs=800)
-    analyse(pd.read_csv(new_path_2), new_write)
 
     joint_plot_models(pd.read_csv(new_path_1), pd.read_csv(new_path_2), path='results/',
                       best_model_epochs_1=600, best_model_epochs_2=800)

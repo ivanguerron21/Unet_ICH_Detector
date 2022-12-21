@@ -2,8 +2,7 @@ from pathlib import Path
 from sklearn.model_selection import StratifiedKFold
 import os
 from models import UNet, UNet1
-from keras.optimizers import *
-from tools import train_generator, is_file, df_train_generator
+from tools import is_file, df_train_generator
 from keras.callbacks import ModelCheckpoint
 import pandas as pd
 
@@ -11,23 +10,32 @@ import pandas as pd
 img_height = 256
 img_width = 256
 img_size = (img_height, img_width)
-train_path = 'train'
-val_path = 'valid'
-test_path = 'test'
-save_path = Path('results')
-version = 'base'
-model_name = 'unet1_model.hdf5'
-model_weights_name = 'unet1_weight_model.hdf5'
+model_weights_name = 'unet1_weight_model.hdf5'  # change to the one you want to use as pretrained
 test_num = len(os.listdir('test/img'))
 BATCH_SIZE = 32  # 16
 flag = False
-image_dir = "train_all"
 train_data = pd.read_csv("df_even.csv")
-skf = StratifiedKFold(n_splits=10, shuffle=True)
+skf = StratifiedKFold(n_splits=3, shuffle=True)
 Y = train_data['No_Hemorrhage']
 
 
 if __name__ == "__main__":
+
+    checkpoints_path = Path('checkpoints')
+    unet_32_path = checkpoints_path / 'unet_32'
+    unet_normal_path = checkpoints_path / 'unet_normal'
+    if not checkpoints_path.exists():
+        checkpoints_path.mkdir()
+        unet_32_path.mkdir()
+        unet_normal_path.mkdir()
+
+    results_path = Path('results')
+    unet_32_path = results_path / 'unet_32'
+    unet_normal_path = results_path / 'unet_normal'
+    if not results_path.exists():
+        results_path.mkdir()
+        unet_32_path.mkdir()
+        unet_normal_path.mkdir()
 
     def assign_image_fname(row):
         image_fname = str(int(row['Image']) + 1) + '.png'
@@ -52,13 +60,13 @@ if __name__ == "__main__":
     else:
         pretrained_weights = None
 
-    learning_rate = 1e-4  # lo demas no sirve
-    EPOCHS = 1000
+    learning_rate = 1e-4
+    EPOCHS = 80
 
     for train_idx, val_idx in skf.split(train_data, Y):
         unet = UNet1(
             input_size=(img_width, img_height, 1),
-            n_filters=32,  # modificar
+            n_filters=32,
             pretrained_weights=pretrained_weights
         )
         unet.build(learning_rate=learning_rate, EPOCHS=EPOCHS)
@@ -87,8 +95,8 @@ if __name__ == "__main__":
             target_size=img_size
         )
 
-        filepath = str(fold) + 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
-        # creating a callback, hence best weights configurations will be saved
+        # checkpoints/unet_normal if you are doing the other model
+        filepath = 'checkpoints/unet_32/' + str(fold) + 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
         callbacks = [ModelCheckpoint(filepath, monitor='val_loss', verbose=0,
                                      save_best_only=False, save_weights_only=False,
                                      mode='auto', period=100)]
@@ -103,9 +111,10 @@ if __name__ == "__main__":
         )
 
         histDF = pd.DataFrame.from_dict(history.history)
-        histDF.to_csv('my_results/historyCSV_fold_' + str(fold) + '.csv')
+        histDF.to_csv('results/unet_32/historyCSV_fold_' + str(fold) + '.csv')
+        # results/unet_normal if you are doing the other model
 
-        unet.save_model(str(fold) + 'unet_weight_model.hdf5')
-        unet.save(str(fold) + 'UNet1Test.h5')
+        unet.save_model('checkpoints/unet_32/' + str(fold) + 'unet_weight_model.hdf5')
+        unet.save('checkpoints/unet_32/' + str(fold) + 'UNet1Test.h5')
 
         fold += 1

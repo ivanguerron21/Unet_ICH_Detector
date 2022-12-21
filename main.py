@@ -1,32 +1,41 @@
+from pathlib import Path
 import os
 import pandas as pd
-from model_utils import dice_coef, iou, dice_coef_loss
 from models import UNet, UNet1
-from keras.optimizers import *
 import matplotlib.pyplot as plt
-from tools import train_generator, test_generator, save_results, is_file, prepare_dataset, show_image, df_train_generator
+from tools import is_file, df_train_generator
 from keras.callbacks import ModelCheckpoint
 
-train_data = pd.read_csv("df_train_even.csv")
-val_data = pd.read_csv("df_val_even.csv")
+train_data = pd.read_csv("df_train.csv")
+val_data = pd.read_csv("df_val.csv")
 
 img_height = 256
 img_width = 256
 img_size = (img_height, img_width)
-train_path = 'train'
-val_path = 'valid'
-test_path = 'test'
-save_path = 'results'
-version = 'base'
-model_name = 'unet_model.hdf5'
 model_weights_name = 'unet_weight_model.hdf5'
 train_num = len(os.listdir('train/img'))
 val_num = len(os.listdir('valid/img'))
-test_num = len(os.listdir('test/img'))
 BATCH_SIZE = 32  # 16
 flag = False
 
 if __name__ == "__main__":
+
+    checkpoints_path = Path('checkpoints')
+    unet_32_path = checkpoints_path / 'unet_32'
+    unet_normal_path = checkpoints_path / 'unet_normal'
+    if not checkpoints_path.exists():
+        checkpoints_path.mkdir()
+        unet_32_path.mkdir()
+        unet_normal_path.mkdir()
+
+    results_path = Path('results')
+    unet_32_path = results_path / 'unet_32'
+    unet_normal_path = results_path / 'unet_normal'
+    if not results_path.exists():
+        results_path.mkdir()
+        unet_32_path.mkdir()
+        unet_normal_path.mkdir()
+
     def assign_image_fname(row):
         image_fname = str(int(row['Image']) + 1) + '.png'
 
@@ -91,7 +100,7 @@ if __name__ == "__main__":
     # build model
     unet = UNet(
         input_size=(img_width, img_height, 1),
-        n_filters=64,  # modificar
+        n_filters=64,
         pretrained_weights=pretrained_weights
     )
 
@@ -99,8 +108,8 @@ if __name__ == "__main__":
     EPOCHS = 1000
     unet.build(learning_rate=learning_rate, EPOCHS=EPOCHS)
 
-    filepath = 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
-    callbacks = [ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=200)]
+    filepath = 'checkpoints/unet_normal/weights.{epoch:02d}-{val_loss:.2f}.hdf5'
+    callbacks = [ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=100)]
 
     steps_per_epoch = train_num // BATCH_SIZE
     steps_val = val_num // BATCH_SIZE
@@ -116,8 +125,8 @@ if __name__ == "__main__":
 
     unet.save_model(model_weights_name)
     histDF = pd.DataFrame.from_dict(history.history)
-    histDF.to_csv('historyCSV')
-    unet.save('UNet1Test.h5')
+    histDF.to_csv('results/unet_normal/historyCSV')
+    unet.save('checkpoints/unet_normal/UNetTest.h5')
 
     plt.plot(history.history["loss"], label='Training')
     plt.plot(history.history["val_loss"], label='Validation')
@@ -129,7 +138,7 @@ if __name__ == "__main__":
 
     # Display the plot
     plt.legend(loc='best')
-    plt.savefig("loss_fig.png")
+    plt.savefig("results/unet_normal/loss_fig.png")
 
     plt.clf()
 
@@ -143,7 +152,7 @@ if __name__ == "__main__":
 
     # Display the plot
     plt.legend(loc='best')
-    plt.savefig("dice_fig.png")
+    plt.savefig("results/unet_normal/dice_fig.png")
 
     plt.clf()
 
@@ -157,4 +166,4 @@ if __name__ == "__main__":
 
     # Display the plot
     plt.legend(loc='best')
-    plt.savefig("iou_fig.png")
+    plt.savefig("results/unet_normal/iou_fig.png")
